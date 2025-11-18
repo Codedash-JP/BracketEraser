@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文字列クリーンアップ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .action-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            flex-grow: 1; /* 均等な幅に広がるように設定 */
+            padding: 10px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+        #cleanButton {
+            background-color: #5cb85c;
+        }
+        #cleanButton:hover {
+            background-color: #4cae4c;
+        }
+        #copyButton {
+            background-color: #007bff;
+        }
+        #copyButton:hover {
+            background-color: #0056b3;
+        }
+        .result-box {
+            position: relative;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 16px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            min-height: 40px; /* 結果が見やすいように最小の高さを確保 */
+        }
+        .copy-message {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #ffc107;
+            color: #333;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>角括弧と中身を消すアプリ</h1>
+
+    <p>👇 **入力エリア:** [ ]で囲まれた部分を削除したいテキストを入力してください。</p>
+    <textarea id="inputText" placeholder="例: こんにちは、[削除対象のテキスト]これはテストです。"></textarea>
+
+    <div class="action-group">
+        <button id="cleanButton" onclick="cleanText()">✅ クリーンアップ実行</button>
+        <button id="copyButton" onclick="copyResult()">📋 結果をコピー</button>
+    </div>
+
+    <p>✨ **結果エリア:** クリーンアップされたテキストが出力されます。</p>
+    <div id="resultText" class="result-box">
+        <span id="copyMessage" class="copy-message">コピーしました！</span>
+    </div>
+</div>
+
+<script>
+/**
+ * 入力されたテキストから角括弧（[]）とその中身を削除する関数
+ */
+function cleanText() {
+    // 入力テキストを取得
+    const inputTextarea = document.getElementById('inputText');
+    const inputString = inputTextarea.value;
+
+    // 正規表現を使って角括弧と中身を削除
+    // \[.*?\] は角括弧とその中身を最短一致で表します。
+    const cleanedString = inputString.replace(/\[.*?\]/g, '');
+
+    // 結果を出力エリアに表示
+    const resultDiv = document.getElementById('resultText');
+    // 結果を出力エリアに表示（メッセージは除く）
+    resultDiv.textContent = cleanedString; 
+
+    // コピーメッセージ要素を結果Divに戻す（textContentで上書きされた場合のため）
+    const message = document.getElementById('copyMessage');
+    if (!resultDiv.contains(message)) {
+        resultDiv.appendChild(message);
+    }
+}
+
+/**
+ * 結果エリアのテキストをクリップボードにコピーする関数
+ */
+function copyResult() {
+    const resultDiv = document.getElementById('resultText');
+    const textToCopy = resultDiv.textContent.trim();
+    const copyMessage = document.getElementById('copyMessage');
+
+    if (textToCopy === "" || textToCopy === "コピーしました！") {
+        alert("コピーするテキストがありません。");
+        return;
+    }
+
+    // クリップボードAPIを使用してコピーを実行
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        // 成功時のメッセージ表示
+        console.log('Text copied to clipboard successfully!');
+        
+        // 「コピーしました！」メッセージを表示
+        copyMessage.style.opacity = 1;
+        
+        // 1.5秒後にメッセージを非表示にする
+        setTimeout(() => {
+            copyMessage.style.opacity = 0;
+        }, 1500);
+
+    }).catch(err => {
+        // 失敗時のエラー処理
+        console.error('Could not copy text: ', err);
+        alert('クリップボードへのコピーに失敗しました。ブラウザの設定を確認してください。');
+    });
+}
+</script>
+
+</body>
+</html>
